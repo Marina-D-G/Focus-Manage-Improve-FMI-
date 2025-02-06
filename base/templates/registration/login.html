@@ -2,13 +2,13 @@
 {% block content %}
 <div class="shadow-wrap">
  <div class="form-wrap">
-  <h3>Login </h3>
+  <h3>Вход в FMI</h3>
 <form method="POST">
  {% csrf_token %}
  {{form}}
- <button type="submit">Submit</button>
+ <button type="submit">Вход</button>
 </form>
-<a class="signup-link" href="{% url "base:sign_up" %}">Signup</a>
+<a class="signup-link" href="{% url "base:sign_up" %}">Регистрация</a>
 </div>
 </div>
 {% endblock content %}a
