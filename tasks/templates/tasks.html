@@ -6,13 +6,12 @@
 
 {% block extra_css %}
 <style>
-    /* Layout */
+    /* Previous styles remain unchanged until todo-list */
     .page-container {
         display: flex;
         min-height: calc(100vh - 60px);
     }
 
-    /* Sidebar */
     .sidebar {
         width: 250px;
         background-color: #135ea9;
@@ -31,6 +30,17 @@
         width: 100%;
         padding: 10px;
         background-color: #0056b3;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .join-list-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #096dd8;
         color: white;
         border: none;
         border-radius: 5px;
@@ -88,7 +98,14 @@
         border-radius: 5px;
     }
 
-    /* Tasks layout */
+    .generate-code-button{
+        background-color: #4692b2;
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+    }
+
     .todo-list {
         display: flex;
         flex-direction: column;
@@ -105,6 +122,14 @@
         border-radius: 8px;
         padding: 15px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        order: 0;
+    }
+
+    .todo-card[data-phase="done"] {
+        order: 999;
+        background-color: #f5f5f5;
+        border-color: #e0e0e0;
+        opacity: 0.85;
     }
 
     .todo-info {
@@ -131,6 +156,11 @@
         margin-top: 5px;
     }
 
+    .phase-done {
+        background-color: #6c757d;
+        color: white;
+    }
+
     .deadline {
         font-size: 0.9em;
         color: #666;
@@ -140,7 +170,6 @@
         color: #dc3545;
     }
 
-    /* Buttons */
     .task-buttons {
         display: flex;
         gap: 8px;
@@ -173,16 +202,30 @@
     .btn:hover {
         opacity: 0.85;
     }
+
+    .sorting-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .sort-select {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        background-color: white;
+        min-width: 150px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-container">
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
             <h3>Моите списъци</h3>
             <button class="add-list-button" onclick="window.location.href='/tasks/lists/add'">+ Нов лист</button>
+            <button class="join-list-button" onclick="window.location.href='/tasks/lists/join'">+ Присъедини се</button>
         </div>
         <div class="todo-lists">
             <a href="{% url 'tasks:tasks' %}" class="list-item {% if not current_list %}active{% endif %}">Всички задачи</a>
@@ -192,23 +235,38 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
             <h1>{{ current_list.name|default:"Всички задачи" }}</h1>
+            <div class="sorting-controls">
+                <select class="sort-select" onchange="window.location.href='?sort_by=deadline&order=' + this.value + '{% if current_list %}&list={{ current_list.id }}{% endif %}'">
+                    <option value="">Сортирай по краен срок</option>
+                    <option value="asc" {% if sort_by == 'deadline' and order == 'asc' %}selected{% endif %}>Най-близки първо</option>
+                    <option value="desc" {% if sort_by == 'deadline' and order == 'desc' %}selected{% endif %}>Най-далечни първо</option>
+                </select>
+                <select class="sort-select" onchange="window.location.href='?sort_by=priority&order=' + this.value + '{% if current_list %}&list={{ current_list.id }}{% endif %}'">
+                    <option value="">Сортирай по приоритет</option>
+                    <option value="high" {% if sort_by == 'priority' and order == 'high' %}selected{% endif %}>Висок към нисък</option>
+                    <option value="low" {% if sort_by == 'priority' and order == 'low' %}selected{% endif %}>Нисък към висок</option>
+                </select>
+            </div>
             {% if current_list %}
                 <a href="{% url 'tasks:add_task' current_list.id %}" class="add-task-button">+ Добави задача</a>
+                <a href="#" 
+                    class="generate-code-button" 
+                    onclick="alert('Код за присъединяване: {{ current_list.join_code }}');">
+                    🔑 Добави потребител
+                </a>
                 <form method="POST" action="{% url 'tasks:delete_list' current_list.id %}" onsubmit="return confirm('Сигурни ли сте, че искате да изтриете този списък?');">
                     {% csrf_token %}
                     <button type="submit" class="delete-list-button">✖ Изтрий списък</button>
                 </form>
-                
             {% endif %}
         </div>
 
         <div class="todo-list">
             {% for todo in tasks %}
-            <div class="todo-card priority-{{ todo.priority }}">
+            <div class="todo-card priority-{{ todo.priority }}" data-phase="{{ todo.phase }}">
                 <div class="todo-info">
                     <div class="todo-title">{{ todo.title }}</div>
                     {% if todo.description %}
@@ -222,15 +280,12 @@
                     </div>
                 </div>
 
-                <!-- Buttons -->
                 <div class="task-buttons">
                     <form method="POST" action="{% url 'tasks:mark_done' todo.id %}">
                         {% csrf_token %}
                         <button class="btn btn-complete">✔</button>
                     </form>
-                    
                     <a href="{% url 'tasks:edit' todo.id %}" class="btn btn-edit">✎</a>
-                    
                     <form method="POST" action="{% url 'tasks:delete' todo.id %}" onsubmit="return confirm('Сигурни ли сте?');">
                         {% csrf_token %}
                         <button class="btn btn-delete">✖</button>
@@ -244,3 +299,5 @@
     </div>
 </div>
 {% endblock %}
+
+

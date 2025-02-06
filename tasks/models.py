@@ -1,6 +1,8 @@
+import random
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
+
 
 def default_deadline():
     return datetime.now() + timedelta(days=7)
@@ -8,9 +10,25 @@ def default_deadline():
 class TodoList(models.Model):
     users = models.ManyToManyField(User, related_name="todo_lists")
     name = models.CharField(max_length=200)
+    join_code = models.CharField(max_length=6, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
+    
+    def generate_code(self):
+        """Генерира уникален 6-цифрен код за присъединяване"""
+        while True:
+            code = str(random.randint(100000, 999999)) 
+            if not TodoList.objects.filter(join_code=code).exists():
+                self.join_code = code
+                self.save()
+                break
+
+    def save(self, *args, **kwargs):
+        # Ако join_code е празен (None или ""), генерирай код
+        if not self.join_code:
+            self.generate_code()
+        super().save(*args, **kwargs)
 
 class TodoItem(models.Model):
     PRIORITY_CHOICES = [
@@ -28,19 +46,9 @@ class TodoItem(models.Model):
     todo_list = models.ForeignKey(TodoList, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True, default=1)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    status = models.BooleanField(default=False)
     deadline = models.DateTimeField(default=default_deadline, blank=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
     phase = models.CharField(max_length=20, choices=PHASE_CHOICES, default="todo")
-
-    def save(self, *args, **kwargs):
-        """ Автоматично променя phase при промяна на status """
-        if self.status:
-            self.phase = "done"
-        else:
-            if self.phase == "done":
-                self.phase = "todo"
-        super().save(*args, **kwargs)
 
     @classmethod
     def filter_by_priority(cls, priority):

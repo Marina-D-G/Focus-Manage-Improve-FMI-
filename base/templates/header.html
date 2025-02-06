@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FMI{% endblock %}</title>
@@ -50,9 +51,10 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    {% load static %}
     <header>
         <div class="logo">
-            <img src="static/fmi_icon.png" alt="Моето Лого">
+            <img src="{% static 'fmi_icon.png' %}" alt="Моето Лого">
         </div>
         <nav>
             <a href="{% url 'base:home' %}" class="{% if request.path == '/' %}active{% endif %}">Начало</a>
