@@ -1,14 +1,33 @@
 {% extends "header.html" %}
 
+{% block extra_styles %}
+<style>
+  /* Ако header.html поддържа блок за допълнителни стилове */
+  body {
+    background: linear-gradient(135deg, #74ABE2, #5563DE);
+    min-height: 100vh;
+    margin: 0;
+  }
+  .card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="shadow-wrap">
-  <div class="form-wrap">
-    <h3>Добре дошли!</h3>
-    <p>Здравей, {{ user.username }}!</p>
-    <form method="POST" action="{% url 'base:logout' %}">
-      {% csrf_token %}
-      <button type="submit">Изход</button>
-    </form>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+  <div class="card shadow-lg">
+    <div class="card-body text-center p-5">
+      <h3 class="card-title mb-4">Добре дошли!</h3>
+      <p class="mb-4">Здравей, {{ user.username }}!</p>
+      <form method="POST" action="{% url 'base:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-dark">Изход</button>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
+

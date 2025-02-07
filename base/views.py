@@ -9,11 +9,12 @@ def home(request):
         return render(request, "home_guest.html")
 
 def sign_up(request):
- if request.method == "POST":
-  form = UserCreationForm(request.POST or None)
-  if form.is_valid():
-   form.save()
-   return redirect("base:login")
- else:
-  form = UserCreationForm()
- return render(request, "registration/signup.html", {"form": form})
+    if request.method == "POST":
+        form = UserCreationForm(request.POST or None)
+        if form.is_valid():
+            form.save()
+            return redirect("base:login")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "registration/signup.html", {"form": form})
