@@ -1,5 +1,6 @@
 from django import forms
-from .models import Event
+from .models import Event, Calendar
+
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -10,3 +11,13 @@ class EventForm(forms.ModelForm):
             'time': forms.TimeInput(attrs={'type': 'time'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
+
+
+class CalendarForm(forms.ModelForm):
+    class Meta:
+        model = Calendar
+        fields = ['name']
+    
+
+class JoinCalendarForm(forms.Form):
+    join_code = forms.CharField(label="Код за присъединяване", max_length=6)

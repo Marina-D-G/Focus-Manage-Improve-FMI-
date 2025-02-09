@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='calendar',
-            field=models.ForeignKey(blank=True, default=calendars.models.get_default_calendar, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='events', to='calendars.calendar'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='events', to='calendars.calendar'),
         ),
         migrations.AlterField(
             model_name='event',

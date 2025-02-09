@@ -6,7 +6,6 @@
 
 {% block extra_css %}
 <style>
-    /* Previous styles remain unchanged until todo-list */
     .page-container {
         display: flex;
         min-height: calc(100vh - 60px);
@@ -202,6 +201,21 @@
     .btn:hover {
         opacity: 0.85;
     }
+    
+    .btn-calendar {
+        background-color: #ffc107;
+        color: black;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .btn-calendar:hover {
+        background-color: #e0a800;
+    }
 
     .sorting-controls {
         display: flex;
@@ -289,6 +303,10 @@
                     <form method="POST" action="{% url 'tasks:delete' todo.id %}" onsubmit="return confirm('Сигурни ли сте?');">
                         {% csrf_token %}
                         <button class="btn btn-delete">✖</button>
+                    </form>
+                    <form method="POST" action="{% url 'calendars:add_from_task' todo.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-calendar" title="Добави към календар">📅</button>
                     </form>
                 </div>
             </div>

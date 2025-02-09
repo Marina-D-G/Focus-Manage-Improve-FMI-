@@ -1,19 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Event, Calendar
-from .forms import EventForm
-from datetime import date
 import calendar
+import datetime
+from icalendar import Calendar as ICalendar, Event as ICalEvent
+from datetime import date
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponse
+from .models import Event, Calendar
+from tasks.models import TodoItem
+from .forms import EventForm, CalendarForm, JoinCalendarForm
 
-
-def calendar_day(request):
-    user = request.user 
-    events = Event.objects.filter(users=user)
-    return render(request, "calendar_day.html", {"events": events})
-
-def calendar_week(request):
-    user = request.user 
-    events = Event.objects.filter(users=user)
-    return render(request, "calendar_week.html", {"events": events})
 
 def calendar_month(request):
     today = date.today()
@@ -116,19 +111,152 @@ def calendar_month(request):
     
     return render(request, 'calendar_month.html', context)
 
-def add_event(request):
+def add_event(request, selected_calendar_id):
+    selected_calendar_id = int(selected_calendar_id)
+    user_calendar = Calendar.objects.filter(id=selected_calendar_id, users=request.user).first()
     if request.method == "POST":
         form = EventForm(request.POST)
         if form.is_valid():
             event = form.save(commit=False)
             event.owner = request.user
+            event.calendar = user_calendar
             event.save()
             return redirect('calendars:calendar_month')
     else:
         form = EventForm()
     
-    return render(request, "add_event.html", {"form": form})
+    context = {
+        "form": form,
+        "selected_calendar_id": selected_calendar_id,
+        "user_calendar": user_calendar
+    }
+    return render(request, "add_event.html", context)
 
 def event_detail(request, id):
     event = get_object_or_404(Event, id=id)
-    return render(request, 'event_detail.html', {'event': event})
+    request_user = request.user
+    return render(request, 'event_detail.html', {'event': event, 'request_user': request_user})
+
+def edit_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == "POST":
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Събитието беше успешно редактирано!")
+            return redirect("calendars:calendar_month")
+    else:
+        form = EventForm(instance=event)
+    
+    return render(request, "edit_event.html", {"form": form, "event": event})
+
+def delete_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)   
+    if request.method == "POST":
+        event.delete()
+        messages.success(request, "Събитието беше изтрито успешно!")
+        return redirect("calendars:calendar_month")
+
+def add_calendar(request):
+    if request.method == "POST":
+        form = CalendarForm(request.POST)
+        if form.is_valid():
+            calendar_new = form.save(commit=False)
+            calendar_new.save()
+            calendar_new.users.add(request.user)
+            return redirect("calendars:calendar_month")
+    else:
+        form = CalendarForm()
+   
+    return render(request, "add_calendar.html", {"form": form})
+
+
+def join_calendar(request):
+    if request.method == "POST":
+        form = JoinCalendarForm(request.POST)
+        if form.is_valid():
+            join_code = form.cleaned_data["join_code"]
+            try:
+                calendar_to_join = Calendar.objects.get(join_code=join_code)
+                calendar_to_join.users.add(request.user)
+                messages.success(request, f"Успешно се присъединихте към '{calendar_to_join.name}'!")
+                return redirect("calendars:calendar_month")
+            except Calendar.DoesNotExist:
+                messages.error(request, "Невалиден код!")
+    else:
+        form = JoinCalendarForm()
+
+    return render(request, "join_calendar.html", {"form": form})
+
+def remove_calendar(request, calendar_id):
+    if request.method == "POST":
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+        if calendar.users.count() <= 1:
+            calendar.delete()
+        else:
+            calendar.users.remove(request.user)
+
+        return redirect('calendars:calendar_month')
+    
+def add_from_task(request, task_id):
+    task = TodoItem.objects.get(id=task_id)
+    
+    if request.method == "POST":
+        form = JoinCalendarForm(request.POST)
+        if form.is_valid():
+            calendar_code = form.cleaned_data['join_code']
+            try:
+                calendar = Calendar.objects.get(join_code=calendar_code, users=request.user)
+            except Calendar.DoesNotExist:
+                messages.error(request, "Невалиден код. Моля, опитайте отново.")
+                return redirect("calendars:calendar_month")
+            
+            event = Event.objects.create(
+                name=task.title,
+                description= f"Това е крайният срок за задача {task.title}. {task.description}",
+                date=task.deadline.date(),
+                time=task.deadline.time(),
+                owner=request.user,
+                calendar=calendar
+            )
+
+            messages.success(request, f"Задачата '{task.title}' беше добавена към календара!")
+            return redirect("tasks:tasks")
+    else:
+        form = JoinCalendarForm()
+    
+    return render(request, "add_from_task.html", {"task": task, "form": form})
+
+def export_calendar(request, calendar_id):
+    calendar_obj = get_object_or_404(Calendar, id=calendar_id, users=request.user)
+    events = Event.objects.filter(calendar=calendar_obj)
+
+    cal = ICalendar()
+    cal.add('prodid', '-//Моят календар //BG')
+    cal.add('calscale', 'GREGORIAN')
+    cal.add('version', '2.0')
+
+    utc = datetime.timezone.utc
+
+    for event in events:
+        ical_event = ICalEvent()
+        ical_event.add('uid', f'{event.id}@example.com')
+        ical_event.add('summary', event.name)
+        dtstart = datetime.datetime.combine(event.date, event.time).replace(tzinfo=utc)
+        ical_event.add('dtstart', dtstart)
+        dtend = dtstart + datetime.timedelta(hours=1)
+        ical_event.add('dtend', dtend)
+        ical_event.add('dtstamp', datetime.datetime.now(utc))
+        cal.add_component(ical_event)
+
+    ics_content = cal.to_ical()
+
+    ics_str = ics_content.decode('utf-8')
+    ics_str = ics_str.replace('\r\n', '\n').replace('\r', '\n')
+    ics_str = ics_str.replace('\n', '\r\n')
+    ics_content = ics_str.encode('utf-8')
+
+    response = HttpResponse(ics_content, content_type='text/calendar; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="calendar_{calendar_obj.id}.ics"'
+    return response
+

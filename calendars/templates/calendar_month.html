@@ -1,186 +1,121 @@
 {% extends "header.html" %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="bg">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Месечен Календар</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    /* Общи стилове */
-    body {
-      background-color: #f8f9fa;
-    }
-    /* Стилове за календара */
-    .calendar {
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-    .calendar .header {
-      background: #007bff;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      position: relative;
-    }
-    .nav-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0 15px;
-      text-decoration: none;
-    }
-    .nav-button:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    .prev-button { left: 0; }
-    .next-button { right: 0; }
-    
-    /* Календарната решетка с CSS Grid */
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
-      padding: 2px;
-    }
-    .weekday-header {
-      background-color: #f8f9fa;
-      font-weight: bold;
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-    .day {
-      border: 1px solid #ddd;
-      padding: 5px;
-      min-height: 100px;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-    .day-number {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .empty-day {
-      background-color: #f9f9f9;
-    }
-    .current-day {
-      background-color: #e8f4ff;
-    }
-    /* Стилове за събитията вътре в клетката */
-    .event {
-      background-color: #ffc107;
-      padding: 2px 5px;
-      font-size: 12px;
-      border-radius: 3px;
-      margin-top: 2px;
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .event:hover {
-      background-color: #ffb300;
-    }
-    
-    /* Стилове за Sidebar */
-    .sidebar {
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .sidebar h5 {
-      margin-bottom: 15px;
-    }
-    .sidebar .btn {
-      width: 100%;
-      margin-bottom: 15px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container mt-4 mb-4">
-    <div class="row">
-      <!-- Лява колона: Избор на календар -->
-      <div class="col-md-3">
-        <div class="sidebar">
-          <h5>Избери календар</h5>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-2">
+      <div class="card mb-3">
+        <div class="card-header">
+          Календар
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <form method="POST" action="{% url 'calendars:add_calendar' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-primary btn-sm w-100 mb-2">+ Нов календар</button>
+            </form>
+            <form method="POST" action="{% url 'calendars:join_calendar' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-secondary btn-sm w-100">+ Присъедини се</button>
+            </form>
+          </div>
           <ul class="list-group">
             {% for cal in calendars %}
-              <li class="list-group-item {% if cal.id|stringformat:"s" == selected_calendar_id|stringformat:"s" %}active{% endif %}"
-                  style="cursor: pointer;"
-                  onclick="window.location.href='?calendar_id={{ cal.id }}&year={{ year }}&month={{ month }}'">
-                {{ cal.name }}
+              <li class="list-group-item d-flex justify-content-between align-items-center {% if cal.id|stringformat:"s" == selected_calendar_id|stringformat:"s" %}active{% endif %}">
+                <span style="cursor: pointer;" onclick="window.location.href='?calendar_id={{ cal.id }}&year={{ year }}&month={{ month }}'">
+                  {{ cal.name }}
+                </span>
               </li>
             {% endfor %}
-          </ul>
+            {% if selected_calendar %}
+            <div class="mt-2 text-center">
+              <div class="btn-group btn-group-sm" role="group" aria-label="Calendar actions">
+                <form method="POST" action="{% url 'calendars:remove_calendar' selected_calendar.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" title="Изтрий календар">❌</button>
+                </form>
+                <button type="button" class="btn btn-primary" onclick="alert('Код за присъединяване: {{ selected_calendar.join_code }}');">👥</button>
+                <a href="{% url 'calendars:export_calendar' selected_calendar.id %}" class="btn btn-primary">📥</a>
+              </div>
+            </div>
+          {% endif %}
         </div>
       </div>
-      
-      <!-- Централна колона: Календар -->
-      <div class="col-md-6">
-        <div class="calendar">
-          <div class="header">
-            <a href="?calendar_id={{ selected_calendar_id }}&year={{ prev_year }}&month={{ prev_month }}" class="nav-button prev-button">&#8592;</a>
-            <span id="monthYear" class="h4 mb-0">{{ month_name }} {{ year }}</span>
-            <a href="?calendar_id={{ selected_calendar_id }}&year={{ next_year }}&month={{ next_month }}" class="nav-button next-button">&#8594;</a>
-          </div>
-          <div class="calendar-grid">
-            <!-- Дните от седмицата -->
-            <div class="weekday-header">Пн</div>
-            <div class="weekday-header">Вт</div>
-            <div class="weekday-header">Ср</div>
-            <div class="weekday-header">Чт</div>
-            <div class="weekday-header">Пт</div>
-            <div class="weekday-header">Сб</div>
-            <div class="weekday-header">Нд</div>
-          </div>
-          <div class="calendar-grid">
-            {% for week in calendar_weeks %}
-              {% for day in week %}
-                {% if day.day %}
-                  <div class="day {% if day.is_today %}current-day{% endif %}">
-                    <div class="day-number">{{ day.day }}</div>
-                    {% for event in day.events %}
-                      <div class="event"
-                        onclick="window.location.href='{% url 'calendars:event_detail' event.id %}'"
-                        title="{{ event.name }} - {{ event.time|time:'H:i' }}{% if event.description %}\n{{ event.description }}{% endif %}">
-                        {{ event.name }}
-                      </div>
+    </div>
+    
+    <div class="col-md-7">
+      <div class="card mb-3">
+        <div class="card-header position-relative">
+          <a href="?calendar_id={{ selected_calendar_id }}&year={{ prev_year }}&month={{ prev_month }}"
+             class="btn btn-link position-absolute top-50 start-0 translate-middle-y text-decoration-none">&#8592;</a>
+          <h4 class="text-center mb-0">{{ month_name }} {{ year }}</h4>
+          <a href="?calendar_id={{ selected_calendar_id }}&year={{ next_year }}&month={{ next_month }}"
+             class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-decoration-none">&#8594;</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-bordered m-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center">Пн</th>
+                  <th class="text-center">Вт</th>
+                  <th class="text-center">Ср</th>
+                  <th class="text-center">Чт</th>
+                  <th class="text-center">Пт</th>
+                  <th class="text-center">Сб</th>
+                  <th class="text-center">Нд</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for week in calendar_weeks %}
+                  <tr>
+                    {% for day in week %}
+                      {% if day.day %}
+                        <td class="align-top {% if day.is_today %}table-info{% endif %}" style="min-width: 100px; height: 100px;">
+                          <strong>{{ day.day }}</strong>
+                          {% for event in day.events %}
+                            <div class="badge bg-warning text-dark d-block mt-1" 
+                                 style="cursor: pointer;" 
+                                 onclick="window.location.href='{% url 'calendars:event_detail' event.id %}'" 
+                                 title="{{ event.name }} - {{ event.time|time:'H:i' }}{% if event.description %}\n{{ event.description }}{% endif %}">
+                              {{ event.name }}
+                            </div>
+                          {% endfor %}
+                        </td>
+                      {% else %}
+                        <td class="bg-light"></td>
+                      {% endif %}
                     {% endfor %}
-                  </div>
-                {% else %}
-                  <div class="day empty-day"></div>
-                {% endif %}
-              {% endfor %}
-            {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-      
-      <!-- Дясна колона: Sidebar с бутон за добавяне и списък с предстоящи събития -->
-      <div class="col-md-3">
-        <div class="sidebar">
-          <a href="{% url 'calendars:add_event' %}?calendar_id={{ selected_calendar_id }}" class="btn btn-success">Добави събитие</a>
-          <h5 class="mt-3">Предстоящи събития</h5>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-header">
+          Предстоящи събития
+        </div>
+        <div class="card-body">
+          {% if selected_calendar_id %}
+          <form method="POST" action="{% url 'calendars:add_event' selected_calendar_id %}">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="btn btn-success w-100 mb-3">Добави събитие</button>
+          </form>
+          {% endif %}
           <ul class="list-group">
             {% if upcoming_events %}
               {% for event in upcoming_events %}
-                <li class="list-group-item" style="cursor: pointer;"
+                <li class="list-group-item" style="cursor: pointer;" 
                     onclick="window.location.href='{% url 'calendars:event_detail' event.id %}'">
-                  <strong>{{ event.date|date:"d.m.Y" }} {{ event.time|time:"H:i" }}</strong> - {{ event.name }}
+                  <small>
+                    <strong>{{ event.date|date:"d.m.Y" }} {{ event.time|time:"H:i" }}</strong>
+                  </small><br>
+                  {{ event.name }}
                 </li>
               {% endfor %}
             {% else %}
@@ -189,9 +124,8 @@
           </ul>
         </div>
       </div>
-      
     </div>
+    
   </div>
-</body>
-</html>
+</div>
 {% endblock %}
