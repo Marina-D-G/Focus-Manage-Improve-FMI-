@@ -25,4 +25,5 @@ urlpatterns = [
     path("", include(("base.urls", "base"), "base")),
     path('tasks/', include('tasks.urls')),
     path('calendar/', include('calendars.urls')),
+    path('budget/', include('budget.urls')),
 ]+ static(settings.STATIC_URL)

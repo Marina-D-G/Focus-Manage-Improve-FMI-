@@ -1,0 +1,88 @@
+{% extends "header.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3 mb-3 text-center">
+                <h5>Управление на бюджета</h5>
+                <a href="{% url 'budget:add_income' %}" class="btn btn-primary w-100 mb-2">Добави приход</a>
+                <a href="{% url 'budget:add_expense' %}" class="btn btn-danger w-100">Добави разход</a>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="card p-3 text-center">
+                        <h6>Бюджет:</h6>
+                        <h4>{{ total_budget|default:"0.00" }} лв.</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 text-center">
+                        <h6>Всички разходи:</h6>
+                        <h4>{{ total_expenses|default:"0.00" }} лв.</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 text-center">
+                        <h6>Оставащ бюджет:</h6>
+                        <h4>{{ budget_left|default:"0.00" }} лв.</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-3">
+                <h5>История на приходите и разходите:</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Тип</th>
+                            <th>Категория</th>
+                            <th>Име</th>
+                            <th>Стойност</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>
+                                {% if transaction.type == "income" %}
+                                    <span class="badge bg-success">Приход</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Разход</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.get_category_display }}</td>
+                            <td>{{ transaction.amount }} лв.</td>
+                            <td>
+                                <form method="post" action="{% url 'budget:remove_transaction' transaction.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Изтрий</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">Не са налични приходи и разходи.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6 text-center">
+                    <h5>Разбивка на разходите</h5>
+                    <img src="{% url 'budget:expense_chart' %}" alt="Разходи" class="img-fluid">
+                </div>
+                <div class="col-md-6 text-center">
+                    <h5>Разбивка на приходите</h5>
+                    <img src="{% url 'budget:income_chart' %}" alt="Приходи" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "header.html" %}
+
+{% block content %}
+<h2>Добавяне на нова транзакция</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Запази</button>
+</form>
+{% endblock %}
