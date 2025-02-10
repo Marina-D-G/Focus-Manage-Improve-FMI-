@@ -9,6 +9,19 @@
                 <a href="{% url 'budget:add_income' %}" class="btn btn-primary w-100 mb-2">Добави приход</a>
                 <a href="{% url 'budget:add_expense' %}" class="btn btn-danger w-100">Добави разход</a>
             </div>
+
+            <div class="card p-3">
+                <h5>Избери месец</h5>
+                <ul class="list-group">
+                    {% for month in months %}
+                    <li class="list-group-item {% if selected_month == month.value %}active{% endif %}">
+                        <a href="{% url 'budget:dashboard' %}?month={{ month.value }}" class="text-decoration-none">
+                            {{ month.label }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
 
         <div class="col-md-8">

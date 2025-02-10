@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import io
+import calendar
+import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
@@ -7,6 +9,12 @@ from django.http import HttpResponse
 from .models import Transaction
 from .forms import TransactionForm
 
+
+BULGARIAN_MONTHS = {
+    "January": "Януари", "February": "Февруари", "March": "Март", "April": "Април",
+    "May": "Май", "June": "Юни", "July": "Юли", "August": "Август",
+    "September": "Септември", "October": "Октомври", "November": "Ноември", "December": "Декември"
+}
 
 def add_transaction(request):
     if request.method == "POST":
@@ -52,19 +60,45 @@ def remove_transaction(request, transaction_id):
     return redirect("budget:dashboard")
 
 def dashboard(request):
-    transactions = Transaction.objects.filter(user=request.user)
-    
+    today = datetime.date.today()
+    months = []
+
+    for i in range(12):
+        month_date = today - datetime.timedelta(days=i * 30)
+        month_value = month_date.strftime("%Y-%m")
+        month_name_en = month_date.strftime("%B")
+        month_name_bg = BULGARIAN_MONTHS[month_name_en]
+
+        income = Transaction.objects.filter(user=request.user, date__year=month_date.year, date__month=month_date.month, type="income").aggregate(Sum("amount"))["amount__sum"] or 0
+        expenses = Transaction.objects.filter(user=request.user, date__year=month_date.year, date__month=month_date.month, type="expense").aggregate(Sum("amount"))["amount__sum"] or 0
+
+        months.append({
+            "value": month_value,
+            "label": f"{month_name_bg} {month_date.year} (+{income} лв., -{expenses} лв.)",
+            "income": income,
+            "expenses": expenses
+        })
+
+    selected_month = request.GET.get("month", today.strftime("%Y-%m"))
+    selected_year, selected_month_num = map(int, selected_month.split("-"))
+    selected_month_label = f"{BULGARIAN_MONTHS[datetime.date(selected_year, selected_month_num, 1).strftime('%B')]} {selected_year}"
+
+    transactions = Transaction.objects.filter(user=request.user, date__year=selected_year, date__month=selected_month_num)
+
     total_budget = transactions.filter(type="income").aggregate(Sum('amount'))['amount__sum'] or 0
     total_expenses = transactions.filter(type="expense").aggregate(Sum('amount'))['amount__sum'] or 0
     budget_left = total_budget - total_expenses
 
     context = {
-        'total_budget': total_budget,
-        'total_expenses': total_expenses,
-        'budget_left': budget_left,
-        'transactions': transactions,
+        "transactions": transactions,
+        "total_budget": total_budget,
+        "total_expenses": total_expenses,
+        "budget_left": budget_left,
+        "months": months,
+        "selected_month": selected_month,
+        "selected_month_label": selected_month_label
     }
-    
+
     return render(request, "dashboard.html", context)
 
 def generate_pie_chart(labels, values, title):
