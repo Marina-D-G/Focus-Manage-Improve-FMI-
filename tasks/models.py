@@ -16,7 +16,6 @@ class TodoList(models.Model):
         return self.name
     
     def generate_code(self):
-        """Генерира уникален 6-цифрен код за присъединяване"""
         while True:
             code = str(random.randint(100000, 999999)) 
             if not TodoList.objects.filter(join_code=code).exists():
@@ -25,7 +24,6 @@ class TodoList(models.Model):
                 break
 
     def save(self, *args, **kwargs):
-        # Ако join_code е празен (None или ""), генерирай код
         if not self.join_code:
             self.generate_code()
         super().save(*args, **kwargs)

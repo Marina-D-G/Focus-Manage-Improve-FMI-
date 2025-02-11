@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
+    <h2 class="mb-4">Бюджет за {{selected_month}}</h2>
     <div class="row">
         <div class="col-md-4">
             <div class="card p-3 mb-3 text-center">
@@ -87,12 +88,12 @@
 
             <div class="row mt-4">
                 <div class="col-md-6 text-center">
-                    <h5>Разбивка на разходите</h5>
-                    <img src="{% url 'budget:expense_chart' %}" alt="Разходи" class="img-fluid">
+                    <h5>Графика на разходите</h5>
+                    <img src="{% url 'budget:expense_chart' %}?month={{ selected_month }}" alt="Разходи" class="img-fluid">
                 </div>
                 <div class="col-md-6 text-center">
-                    <h5>Разбивка на приходите</h5>
-                    <img src="{% url 'budget:income_chart' %}" alt="Приходи" class="img-fluid">
+                    <h5>Графика на приходите</h5>
+                    <img src="{% url 'budget:income_chart' %}?month={{ selected_month }}" alt="Приходи" class="img-fluid">
                 </div>
             </div>
         </div>

@@ -101,37 +101,50 @@ def dashboard(request):
 
     return render(request, "dashboard.html", context)
 
+
 def generate_pie_chart(labels, values, title):
     fig, ax = plt.subplots()
     
     if sum(values) == 0:
-        ax.text(0.5, 0.5, "No Data", fontsize=15, ha='center')
+        ax.text(0.5, 0.5, "Няма данни", fontsize=15, ha='center')
         ax.axis('off')
     else:
         ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
         ax.set_title(title)
         ax.axis('equal')
-    
+
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
     plt.close(fig)
     buffer.seek(0)
     return buffer
 
-def expense_chart(request):
-    transactions = Transaction.objects.filter(user=request.user, type="expense")
-    
-    categories = list(transactions.values_list('category', flat=True).distinct())
-    amounts = [transactions.filter(category=cat).aggregate(Sum('amount'))['amount__sum'] or 0 for cat in categories]
 
-    buffer = generate_pie_chart(categories, amounts, "Expense Breakdown")
+def expense_chart(request):
+    selected_month = request.GET.get("month", datetime.date.today().strftime("%Y-%m"))
+    selected_year, selected_month_num = map(int, selected_month.split("-"))
+
+    transactions = Transaction.objects.filter(user=request.user, type="expense", date__year=selected_year, date__month=selected_month_num)
+
+    CATEGORY_DICT = dict(Transaction.CATEGORY_CHOICES)
+
+    categories = [CATEGORY_DICT[cat] for cat in transactions.values_list('category', flat=True).distinct()]
+    amounts = [transactions.filter(category=cat).aggregate(Sum('amount'))['amount__sum'] or 0 for cat in transactions.values_list('category', flat=True).distinct()]
+
+    buffer = generate_pie_chart(categories, amounts, f"Разходи за {selected_month}")
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
+
 def income_chart(request):
-    transactions = Transaction.objects.filter(user=request.user, type="income")
+    selected_month = request.GET.get("month", datetime.date.today().strftime("%Y-%m"))
+    selected_year, selected_month_num = map(int, selected_month.split("-"))
 
-    categories = list(transactions.values_list('category', flat=True).distinct())
-    amounts = [transactions.filter(category=cat).aggregate(Sum('amount'))['amount__sum'] or 0 for cat in categories]
+    transactions = Transaction.objects.filter(user=request.user, type="income", date__year=selected_year, date__month=selected_month_num)
 
-    buffer = generate_pie_chart(categories, amounts, "Income Breakdown")
+    CATEGORY_DICT = dict(Transaction.CATEGORY_CHOICES)
+
+    categories = [CATEGORY_DICT[cat] for cat in transactions.values_list('category', flat=True).distinct()]
+    amounts = [transactions.filter(category=cat).aggregate(Sum('amount'))['amount__sum'] or 0 for cat in transactions.values_list('category', flat=True).distinct()]
+
+    buffer = generate_pie_chart(categories, amounts, f"Приходи за {selected_month}")
     return HttpResponse(buffer.getvalue(), content_type="image/png")

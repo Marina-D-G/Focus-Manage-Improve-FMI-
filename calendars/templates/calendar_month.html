@@ -11,11 +11,11 @@
           <div class="mb-3">
             <form method="POST" action="{% url 'calendars:add_calendar' %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-outline-primary btn-sm w-100 mb-2">+ Нов календар</button>
+              <button type="submit" class="btn btn-outline-primary btn-sm w-100 mb-2">Нов календар</button>
             </form>
             <form method="POST" action="{% url 'calendars:join_calendar' %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-outline-secondary btn-sm w-100">+ Присъедини се</button>
+              <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Присъедини се</button>
             </form>
           </div>
           <ul class="list-group">

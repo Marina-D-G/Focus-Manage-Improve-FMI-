@@ -1,0 +1,48 @@
+{% extends "header.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Моите бележки</h2>
+    <div class="d-flex">
+        <form method="POST" action="{% url 'notes:add_note' %}" class="w-50 me-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-sm w-100">Добави бележка</button>
+        </form>
+        <a href="{% url 'notes:view_note' %}" class="btn btn-outline-secondary btn-sm w-50">Прегледай бележка чрез код</a>
+    </div>
+    <div class="row">
+        {% for note in notes %}
+        <div class="col-md-4 col-lg-3">
+            <div class="card mb-3">
+                {% with note.images.all|first as first_image %}
+                    {% if first_image %}
+                        <img src="{{ first_image.image.url }}" class="card-img-top img-fluid rounded" alt="Снимка">
+                    {% endif %}
+                {% endwith %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ note.title }}</h5>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted" style="max-width: 95px; display: inline-block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                        {{ note.created_at|date:"d M Y H:i" }}
+                    </small>
+                    <div>
+                        <a href="{% url 'notes:note_detail' note.id %}" class="btn btn-info btn-sm btn-icon">🔍</a>
+                        <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-primary btn-sm btn-icon">✏️</a>
+                        <form method="post" action="{% url 'notes:delete_note' note.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm btn-icon">🗑️</button>
+                        </form>
+                        <button type="button" class="btn btn-primary btn-sm btn-icon" onclick="alert('Код за споделяне на бележка: {{ note.join_code }}');">👥</button>
+                    </div>                                        
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center">Няма добавени бележки.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

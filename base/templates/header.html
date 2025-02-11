@@ -34,6 +34,9 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/budget' %}active{% endif %}" href="{% url 'budget:dashboard' %}">Личен бюджет</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/notes' %}active{% endif %}" href="{% url 'notes:notes_dashboard' %}">Бележки</a>
+                        </li>
                     </ul>
                 </div>
             </div>

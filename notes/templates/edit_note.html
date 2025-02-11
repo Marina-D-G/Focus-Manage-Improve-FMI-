@@ -1,0 +1,31 @@
+{% extends "header.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Редактиране на бележка</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card p-3 mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Запази промените</button>
+        <a href="{% url 'notes:notes_dashboard' %}" class="btn btn-secondary">Отказ</a>
+    </form>
+    {% if note.images.all %}
+    <div class="card p-3 mb-3 mt-3">
+        <h5>Снимки</h5>
+        <div class="mt-2">
+            {% for image in note.images.all %}
+            <div class="mb-2">
+                <img src="{{ image.image.url }}" class="img-fluid rounded mb-2" alt="Снимка">
+                <form method="post" action="{% url 'notes:delete_image' image.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon">🗑️</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
