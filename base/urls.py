@@ -9,4 +9,6 @@ urlpatterns = [
  path("signup/", views.sign_up, name="sign_up"),
  path("accounts/logout/", LogoutView.as_view(), name='logout'),
  path("accounts/", include("django.contrib.auth.urls")),
+ path('profile/update/', views.update_profile, name='update_profile'),
+ path('profile/<str:username>/', views.profile_view, name='profile'),
 ]

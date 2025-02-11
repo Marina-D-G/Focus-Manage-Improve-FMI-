@@ -24,7 +24,12 @@
               <button type="submit" class="btn btn-danger">Изтрий</button>
           </form>
         {% else %}
-        <p><strong>Вие нямате права над това събитие. Негов създател е:</strong> {{ event.owner }}</p>
+        <p>
+          <strong>Вие нямате права над това събитие. Негов създател е:</strong>
+          <a href="/profile/{{ event.owner.username }}/" class="btn btn-link">
+            {{ event.owner.profile.display_name }}
+          </a>
+        </p>
         {% endif %}
     </div>
 </div>

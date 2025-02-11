@@ -47,7 +47,7 @@ def edit_note(request, note_id):
     return render(request, 'edit_note.html', {'form': form, 'note': note})
 
 def note_detail(request, note_id):
-    note = get_object_or_404(Note, id=note_id, user=request.user)
+    note = get_object_or_404(Note, id=note_id)
     return render(request, 'note_detail.html', {'note': note})
 
 def view_note(request):

@@ -37,6 +37,9 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/notes' %}active{% endif %}" href="{% url 'notes:notes_dashboard' %}">Бележки</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/profile/'|add:request.user.username %}active{% endif %}" href="{% url 'base:profile' request.user.username %}">Профил</a>
+                        </li>                        
                     </ul>
                 </div>
             </div>
