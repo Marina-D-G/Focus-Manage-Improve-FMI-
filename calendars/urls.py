@@ -5,7 +5,7 @@ from . import views
 app_name = 'calendars'
 
 urlpatterns = [
-    path('', views.calendar_month, name='calendar_month'),
+    path('', views.calendar_dashboard, name='calendar_dashboard'),
     path('add_event/<int:selected_calendar_id>/', views.add_event, name='add_event'),
     path('add_from_task/<int:task_id>/', views.add_from_task, name="add_from_task"),
     path('<int:event_id>/edit/', views.edit_event, name="edit_event"),

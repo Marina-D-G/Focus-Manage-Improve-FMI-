@@ -8,6 +8,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from .models import Transaction
 from .forms import TransactionForm
+from notifications.signals import notify
 
 
 BULGARIAN_MONTHS = {
@@ -15,18 +16,6 @@ BULGARIAN_MONTHS = {
     "May": "Май", "June": "Юни", "July": "Юли", "August": "Август",
     "September": "Септември", "October": "Октомври", "November": "Ноември", "December": "Декември"
 }
-
-def add_transaction(request):
-    if request.method == "POST":
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            transaction = form.save(commit=False)
-            transaction.user = request.user
-            transaction.save()
-            return redirect('budget:dashboard')
-    else:
-        form = TransactionForm()
-    return render(request, 'add_transaction.html', {'form': form})
 
 def add_income(request):
     if request.method == "POST":
@@ -41,6 +30,12 @@ def add_income(request):
         form = TransactionForm()
     return render(request, 'add_transaction.html', {'form': form})
 
+from django.shortcuts import render, redirect
+from django.db.models import Sum
+from notifications.signals import notify
+from .forms import TransactionForm
+from .models import Transaction
+
 def add_expense(request):
     if request.method == "POST":
         form = TransactionForm(request.POST)
@@ -49,10 +44,34 @@ def add_expense(request):
             transaction.user = request.user
             transaction.type = 'expense'
             transaction.save()
+
+            today = datetime.date.today()
+            transactions = Transaction.objects.filter(user=request.user, date=today)
+            total_budget = transactions.filter(type="income").aggregate(Sum('amount'))['amount__sum'] or 0
+            total_expenses = transactions.filter(type="expense").aggregate(Sum('amount'))['amount__sum'] or 0
+            budget_left = total_budget - total_expenses
+
+            if budget_left > 0 and total_budget > 0 and (budget_left / total_budget) < 0.15:
+                notify.send(
+                    request.user,
+                    recipient=request.user,
+                    verb='Внимание! Оставеният ви бюджет е под 15% от целият бюджет за месеца.',
+                    description=f'Оставащият бюджет е {budget_left:.2f}лв. от {total_budget:.2f}лв..'
+                )
+
+            if budget_left < 0:
+                notify.send(
+                    request.user,
+                    recipient=request.user,
+                    verb='Внимание! Вие сте изхарчили целият бюджет за месеца.',
+                    description=f'Надхвърлили сте бюджета си с {-budget_left:.2f}лв..'
+                )
+
             return redirect('budget:dashboard')
     else:
         form = TransactionForm()
     return render(request, 'add_transaction.html', {'form': form})
+
 
 def remove_transaction(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)

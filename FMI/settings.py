@@ -39,11 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'base',
     'tasks',
     'calendars',
     'budget',
-    'notes'
+    'notes',
+    'notifications_app',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +139,8 @@ LOGOUT_REDIRECT_URL = 'base:home'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CRONJOBS = [
+    ('* * * * *', 'django.core.management.call_command', ['check_deadlines'])
+    #('0 * * * *', 'django.core.management.call_command', ['check_overdue_events'])
+]

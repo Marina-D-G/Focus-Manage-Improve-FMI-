@@ -27,7 +27,7 @@ urlpatterns = [
     path('calendar/', include('calendars.urls')),
     path('budget/', include('budget.urls')),
     path('notes/', include('notes.urls')),
-    
+    path('notifications/', include('notifications_app.urls')),
 ]+ static(settings.STATIC_URL)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

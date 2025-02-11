@@ -33,6 +33,7 @@ class Event(models.Model):
     time = models.TimeField(default=timezone.now)
     calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, related_name="events", null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="owned_events")
-
+    
+    
     def __str__(self):
         return self.name

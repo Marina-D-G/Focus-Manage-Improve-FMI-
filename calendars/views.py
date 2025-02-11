@@ -10,7 +10,7 @@ from tasks.models import TodoItem
 from .forms import EventForm, CalendarForm, JoinCalendarForm
 
 
-def calendar_month(request):
+def calendar_dashboard(request):
     today = date.today()
     year = int(request.GET.get('year', today.year))
     month = int(request.GET.get('month', today.month))
@@ -109,7 +109,7 @@ def calendar_month(request):
         'selected_calendar_id': selected_calendar_id,
     }
     
-    return render(request, 'calendar_month.html', context)
+    return render(request, 'calendar_dashboard.html', context)
 
 def add_event(request, selected_calendar_id):
     selected_calendar_id = int(selected_calendar_id)
@@ -121,7 +121,7 @@ def add_event(request, selected_calendar_id):
             event.owner = request.user
             event.calendar = user_calendar
             event.save()
-            return redirect('calendars:calendar_month')
+            return redirect('calendars:calendar_dashboard')
     else:
         form = EventForm()
     
@@ -144,7 +144,7 @@ def edit_event(request, event_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Събитието беше успешно редактирано!")
-            return redirect("calendars:calendar_month")
+            return redirect("calendars:calendar_dashboard")
     else:
         form = EventForm(instance=event)
     
@@ -155,7 +155,7 @@ def delete_event(request, event_id):
     if request.method == "POST":
         event.delete()
         messages.success(request, "Събитието беше изтрито успешно!")
-        return redirect("calendars:calendar_month")
+        return redirect("calendars:calendar_dashboard")
 
 def add_calendar(request):
     if request.method == "POST":
@@ -164,7 +164,7 @@ def add_calendar(request):
             calendar_new = form.save(commit=False)
             calendar_new.save()
             calendar_new.users.add(request.user)
-            return redirect("calendars:calendar_month")
+            return redirect("calendars:calendar_dashboard")
     else:
         form = CalendarForm()
    
@@ -180,7 +180,7 @@ def join_calendar(request):
                 calendar_to_join = Calendar.objects.get(join_code=join_code)
                 calendar_to_join.users.add(request.user)
                 messages.success(request, f"Успешно се присъединихте към '{calendar_to_join.name}'!")
-                return redirect("calendars:calendar_month")
+                return redirect("calendars:calendar_dashboard")
             except Calendar.DoesNotExist:
                 messages.error(request, "Невалиден код!")
     else:
@@ -196,7 +196,7 @@ def remove_calendar(request, calendar_id):
         else:
             calendar.users.remove(request.user)
 
-        return redirect('calendars:calendar_month')
+        return redirect('calendars:calendar_dashboard')
     
 def add_from_task(request, task_id):
     task = TodoItem.objects.get(id=task_id)
@@ -209,7 +209,7 @@ def add_from_task(request, task_id):
                 calendar = Calendar.objects.get(join_code=calendar_code, users=request.user)
             except Calendar.DoesNotExist:
                 messages.error(request, "Невалиден код. Моля, опитайте отново.")
-                return redirect("calendars:calendar_month")
+                return redirect("calendars:calendar_dashboard")
             
             event = Event.objects.create(
                 name=task.title,

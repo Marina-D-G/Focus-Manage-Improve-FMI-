@@ -1,0 +1,34 @@
+{% extends "header.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Последни съобщения</h1>
+
+  {% if latest_notifications %}
+    <ul class="list-group">
+      {% for notification in latest_notifications %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            {% if notification.actor %}
+              <strong>{{ notification.actor }}</strong> {{ notification.verb }}
+              {% if notification.target %}
+                за <strong>{{ notification.target }}</strong>
+              {% endif %}
+            {% else %}
+              {{ notification.description }}
+            {% endif %}
+            <br>
+            <small class="text-muted">
+              {{ notification.timestamp|date:"d.m.Y H:i" }}
+            </small>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      Няма нови нотификации.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

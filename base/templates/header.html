@@ -29,13 +29,16 @@
                             <a class="nav-link {% if request.path == '/tasks/' %}active{% endif %}" href="{% url 'tasks:tasks' %}">Задачи</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/calendar/' %}active{% endif %}" href="{% url 'calendars:calendar_month' %}">Календар</a>
+                            <a class="nav-link {% if request.path == '/calendar/' %}active{% endif %}" href="{% url 'calendars:calendar_dashboard' %}">Календар</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/budget' %}active{% endif %}" href="{% url 'budget:dashboard' %}">Личен бюджет</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/notes' %}active{% endif %}" href="{% url 'notes:notes_dashboard' %}">Бележки</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/notifications' %}active{% endif %}" href="{% url 'notifications_app:latest_notifications' %}">Съобщения</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/profile/'|add:request.user.username %}active{% endif %}" href="{% url 'base:profile' request.user.username %}">Профил</a>
