@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from .models import Event, Calendar
 from tasks.models import TodoItem
 from .forms import EventForm, CalendarForm, JoinCalendarForm
+from notifications.signals import notify
 
 
 def calendar_dashboard(request):
@@ -121,6 +122,11 @@ def add_event(request, selected_calendar_id):
             event.owner = request.user
             event.calendar = user_calendar
             event.save()
+            notify.send(
+                request.user,
+                recipient=user_calendar.users.all(),
+                verb=f'{request.user.profile.display_name} добави "{event.name}" към календар {user_calendar.name}'
+            )
             return redirect('calendars:calendar_dashboard')
     else:
         form = EventForm()
@@ -151,7 +157,7 @@ def edit_event(request, event_id):
     return render(request, "edit_event.html", {"form": form, "event": event})
 
 def delete_event(request, event_id):
-    event = get_object_or_404(Event, id=event_id)   
+    event = get_object_or_404(Event, id=event_id)
     if request.method == "POST":
         event.delete()
         messages.success(request, "Събитието беше изтрито успешно!")
@@ -180,6 +186,11 @@ def join_calendar(request):
                 calendar_to_join = Calendar.objects.get(join_code=join_code)
                 calendar_to_join.users.add(request.user)
                 messages.success(request, f"Успешно се присъединихте към '{calendar_to_join.name}'!")
+                notify.send(
+                    request.user,
+                    recipient=calendar_to_join.users.all(),
+                    verb=f'{request.user.profile.display_name} се присъедини към календар {calendar_to_join.name}'
+                )
                 return redirect("calendars:calendar_dashboard")
             except Calendar.DoesNotExist:
                 messages.error(request, "Невалиден код!")
@@ -218,6 +229,13 @@ def add_from_task(request, task_id):
                 time=task.deadline.time(),
                 owner=request.user,
                 calendar=calendar
+            )
+
+            notify.send(
+                request.user,
+                recipient=calendar.users.all(),
+                verb=f'{request.user.profile.display_name} добави задача {task.title} към календар {calendar.name}',
+                description=f'Крайният срок на задачата е {{ event.date|date:"d.m.Y" }}.'
             )
 
             messages.success(request, f"Задачата '{task.title}' беше добавена към календара!")

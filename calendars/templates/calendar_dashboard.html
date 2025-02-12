@@ -45,11 +45,15 @@
     <div class="col-md-7">
       <div class="card mb-3">
         <div class="card-header position-relative">
+          {% if selected_calendar %}
           <a href="?calendar_id={{ selected_calendar_id }}&year={{ prev_year }}&month={{ prev_month }}"
              class="btn btn-link position-absolute top-50 start-0 translate-middle-y text-decoration-none">&#8592;</a>
+          {% endif %}
           <h4 class="text-center mb-0">{{ month_name }} {{ year }}</h4>
+          {% if selected_calendar %}
           <a href="?calendar_id={{ selected_calendar_id }}&year={{ next_year }}&month={{ next_month }}"
              class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-decoration-none">&#8594;</a>
+          {% endif %}
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">

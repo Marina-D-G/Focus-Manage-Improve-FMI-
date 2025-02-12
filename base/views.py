@@ -4,10 +4,14 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from .models import Profile
+from notifications.signals import notify
+from notifications.models import Notification
 
 def home(request):
     if request.user.is_authenticated:
-        return render(request, "home_logged_in.html")
+        notifications_list = list(request.user.notifications.unread())
+        request.user.notifications.mark_all_as_read()
+        return render(request, "home_logged_in.html", {"notifications_list": notifications_list})
     else:
         return render(request, "home_guest.html")
 

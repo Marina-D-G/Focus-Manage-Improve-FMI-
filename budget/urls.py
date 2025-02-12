@@ -10,4 +10,5 @@ urlpatterns = [
     path('remove_transaction/<int:transaction_id>/', views.remove_transaction, name='remove_transaction'),
     path('expense_chart/', views.expense_chart, name='expense_chart'),
     path('income_chart/', views.income_chart, name='income_chart'),
+    path('set_category_limit/', views.set_category_limit, name='set_category_limit'),
 ]

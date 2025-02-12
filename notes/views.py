@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Note, NoteImage
 from .forms import NoteForm, NoteImageForm, NoteEditForm, CodeForm
 from django.contrib import messages
+from notifications.signals import notify
 
 def notes_dashboard(request):
     notes = Note.objects.filter(user=request.user).order_by('-created_at')
@@ -57,6 +58,11 @@ def view_note(request):
             join_code = form.cleaned_data["join_code"]
             try:
                 note = Note.objects.get(join_code=join_code)
+                notify.send(
+                    request.user,
+                    recipient=note.user,
+                    verb=f'{request.user.profile.display_name} прегледа бележка "{note.title}"'
+                )
                 return redirect("notes:note_detail", note_id=note.id)
             except Note.DoesNotExist:
                 messages.error(request, "Невалиден код!")

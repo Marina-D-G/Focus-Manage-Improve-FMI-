@@ -1,0 +1,19 @@
+{% extends 'header.html' %}
+{% block title %}Задаване на процент за категория{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Задаване на процент за категория</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.category.label_tag }}
+            {{ form.category }}
+        </div>
+        <div class="mb-3">
+            {{ form.percentage.label_tag }}
+            {{ form.percentage }}
+        </div>
+        <button type="submit" class="btn btn-primary">Запази промените</button>
+    </form>
+</div>
+{% endblock %}

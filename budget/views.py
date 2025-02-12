@@ -7,14 +7,24 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.http import HttpResponse
 from .models import Transaction
-from .forms import TransactionForm
+from .forms import TransactionForm, CategoryLimitForm
 from notifications.signals import notify
-
 
 BULGARIAN_MONTHS = {
     "January": "Януари", "February": "Февруари", "March": "Март", "April": "Април",
     "May": "Май", "June": "Юни", "July": "Юли", "August": "Август",
     "September": "Септември", "October": "Октомври", "November": "Ноември", "December": "Декември"
+}
+
+CATEGORY_BUDGET_PERCENTAGES = {
+    'food': 25,
+    'transport': 5,
+    'entertainment': 10,
+    'bills': 20,
+    'health': 10,
+    'rent': 20,
+    'dept': 5,
+    'other': 5,
 }
 
 def add_income(request):
@@ -30,12 +40,6 @@ def add_income(request):
         form = TransactionForm()
     return render(request, 'add_transaction.html', {'form': form})
 
-from django.shortcuts import render, redirect
-from django.db.models import Sum
-from notifications.signals import notify
-from .forms import TransactionForm
-from .models import Transaction
-
 def add_expense(request):
     if request.method == "POST":
         form = TransactionForm(request.POST)
@@ -46,7 +50,9 @@ def add_expense(request):
             transaction.save()
 
             today = datetime.date.today()
-            transactions = Transaction.objects.filter(user=request.user, date=today)
+            start_of_month = datetime.date(today.year, today.month, 1)
+            end_of_month = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+            transactions = Transaction.objects.filter(user=request.user, date__gte=start_of_month, date__lte=end_of_month)
             total_budget = transactions.filter(type="income").aggregate(Sum('amount'))['amount__sum'] or 0
             total_expenses = transactions.filter(type="expense").aggregate(Sum('amount'))['amount__sum'] or 0
             budget_left = total_budget - total_expenses
@@ -65,6 +71,16 @@ def add_expense(request):
                     recipient=request.user,
                     verb='Внимание! Вие сте изхарчили целият бюджет за месеца.',
                     description=f'Надхвърлили сте бюджета си с {-budget_left:.2f}лв..'
+                )
+
+            allowed_category_budget = total_budget * CATEGORY_BUDGET_PERCENTAGES[transaction.category]/100
+            category_expenses = transactions.filter(category=transaction.category).aggregate(total=Sum('amount'))['total'] or 0
+            if total_budget > 0 and category_expenses > allowed_category_budget:
+                notify.send(
+                    request.user,
+                    recipient=request.user,
+                    verb=f'Внимание! Разходите ви за категорията "{transaction.get_category_display()}" надвишиха лимита в бюджета.',
+                    description=f'Разходите в тази категория са {category_expenses:.2f}лв., като допустимата сума е {allowed_category_budget:.2f}лв. (т.е. {CATEGORY_BUDGET_PERCENTAGES[transaction.category]}% от общия бюджет).'
                 )
 
             return redirect('budget:dashboard')
@@ -120,6 +136,18 @@ def dashboard(request):
 
     return render(request, "dashboard.html", context)
 
+def set_category_limit(request):
+    if request.method == 'POST':
+        form = CategoryLimitForm(request.POST)
+        if form.is_valid():
+            category = form.cleaned_data['category']
+            percentage = form.cleaned_data['percentage']
+            CATEGORY_BUDGET_PERCENTAGES[category] = percentage
+            return redirect('budget:dashboard')
+    else:
+        form = CategoryLimitForm()
+    
+    return render(request, 'set_category_limit.html', {'form': form})
 
 def generate_pie_chart(labels, values, title):
     fig, ax = plt.subplots()
