@@ -127,6 +127,13 @@ def add_event(request, selected_calendar_id):
                 recipient=user_calendar.users.all(),
                 verb=f'{request.user.profile.display_name} добави "{event.name}" към календар {user_calendar.name}'
             )
+            all_events = Event.objects.filter(calendar=user_calendar, date=event.date)
+            if all_events.count() > 3:
+                notify.send(
+                    request.user,
+                    recipient=user_calendar.users.all(),
+                    verb=f'Внимание! На {event.date} имате повече от 3 събития в календар {user_calendar.name}. Помислете за почивка!'
+                )
             return redirect('calendars:calendar_dashboard')
     else:
         form = EventForm()

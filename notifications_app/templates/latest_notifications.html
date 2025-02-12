@@ -2,7 +2,12 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h1 class="mb-4">Последни съобщения</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Последни съобщения</h1>
+    <a href="{% url 'notifications_app:add_reminder' %}" class="btn btn-primary">
+      Добави напомняне
+    </a>
+  </div>
 
   {% if latest_notifications %}
     <ul class="list-group">

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import TodoItem, TodoList
 from .forms import TaskForm, TodoListForm, JoinListForm
+from notifications.signals import notify
 
 def home(request):
     return render(request, 'hello.html')
@@ -53,7 +54,13 @@ def add_task(request, list_id):
             task.todo_list = todo_list
             task.user = request.user
             task.save()
-            
+            all_tasks = TodoItem.objects.filter(todo_list=todo_list, deadline__date=task.deadline.date())
+            if all_tasks.count() > 5:
+                notify.send(
+                    request.user,
+                    recipient=todo_list.users.all(),
+                    verb=f'Внимание! Имате повече от 5 задачи с краен срок {task.deadline.date()}! Помислете за почивка!'
+                )
             return redirect('tasks:tasks')
     else:
         form = TaskForm()

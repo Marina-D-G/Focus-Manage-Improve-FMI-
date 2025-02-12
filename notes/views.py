@@ -6,6 +6,9 @@ from notifications.signals import notify
 
 def notes_dashboard(request):
     notes = Note.objects.filter(user=request.user).order_by('-created_at')
+    category = request.GET.get('category')
+    if category:
+        notes = notes.filter(category=category)
     return render(request, 'notes_dashboard.html', {'notes': notes})
 
 def add_note(request):

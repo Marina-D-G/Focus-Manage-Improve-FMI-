@@ -4,7 +4,18 @@ import random
 
 
 class Note(models.Model):
+    CATEGORY_CHOICES = (
+        ('work', 'Работа'),
+        ('education', 'Образование'),
+        ('ideas', 'Идеи'),
+        ('travel', 'Пътуване'),
+        ('health', 'Здраве'),
+        ('hobbies', 'Хобита'),
+        ('recipes', 'Рецепти'),
+        ('personal', 'Лични бележки'),
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, null=True, blank=True)
     title = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

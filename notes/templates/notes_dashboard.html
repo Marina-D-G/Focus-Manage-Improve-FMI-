@@ -3,13 +3,31 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Моите бележки</h2>
-    <div class="d-flex">
+    <form method="GET" action="{% url 'notes:notes_dashboard' %}" class="mb-4">
+        <div class="input-group">
+            <select name="category" class="form-select">
+                <option value="">Всички категории</option>
+                <option value="work" {% if request.GET.category == 'work' %}selected{% endif %}>Работа</option>
+                <option value="education" {% if request.GET.category == 'education' %}selected{% endif %}>Образование</option>
+                <option value="ideas" {% if request.GET.category == 'ideas' %}selected{% endif %}>Идеи</option>
+                <option value="travel" {% if request.GET.category == 'travel' %}selected{% endif %}>Пътуване</option>
+                <option value="health" {% if request.GET.category == 'health' %}selected{% endif %}>Здраве</option>
+                <option value="hobbies" {% if request.GET.category == 'hobbies' %}selected{% endif %}>Хобита</option>
+                <option value="recipes" {% if request.GET.category == 'recipes' %}selected{% endif %}>Рецепти</option>
+                <option value="personal" {% if request.GET.category == 'personal' %}selected{% endif %}>Лични бележки</option>
+            </select>
+            <button class="btn btn-outline-secondary" type="submit">Филтрирай</button>
+        </div>
+    </form>
+    
+    <div class="d-flex mb-3">
         <form method="POST" action="{% url 'notes:add_note' %}" class="w-50 me-2">
           {% csrf_token %}
           <button type="submit" class="btn btn-success btn-sm w-100">Добави бележка</button>
         </form>
         <a href="{% url 'notes:view_note' %}" class="btn btn-outline-secondary btn-sm w-50">Прегледай бележка чрез код</a>
     </div>
+    
     <div class="row">
         {% for note in notes %}
         <div class="col-md-4 col-lg-3">
@@ -21,6 +39,9 @@
                 {% endwith %}
                 <div class="card-body">
                     <h5 class="card-title">{{ note.title }}</h5>
+                    {% if note.category %}
+                        <p class="mb-0"><small>Категория: {{ note.get_category_display }}</small></p>
+                    {% endif %}
                 </div>
                 <div class="card-footer d-flex justify-content-between align-items-center">
                     <small class="text-muted" style="max-width: 95px; display: inline-block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">

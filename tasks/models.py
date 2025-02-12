@@ -50,12 +50,10 @@ class TodoItem(models.Model):
 
     @classmethod
     def filter_by_priority(cls, priority):
-        """ Филтрира задачи по приоритет """
         return cls.objects.filter(priority=priority)
 
     @classmethod
     def filter_by_phase(cls, phase):
-        """ Филтрира задачи по фаза """
         return cls.objects.filter(phase=phase)
 
     def __str__(self):

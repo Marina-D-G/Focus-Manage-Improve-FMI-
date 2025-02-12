@@ -1,0 +1,27 @@
+{% extends "header.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Добави напомняне</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.reminder_datetime.label_tag }}
+            {{ form.reminder_datetime }}
+            <small class="form-text text-muted">{{ form.reminder_datetime.help_text }}</small>
+            {% for error in form.reminder_datetime.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.message.label_tag }}
+            {{ form.message }}
+            <small class="form-text text-muted">{{ form.message.help_text }}</small>
+            {% for error in form.message.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Добави напомняне</button>
+    </form>
+</div>
+{% endblock %}
