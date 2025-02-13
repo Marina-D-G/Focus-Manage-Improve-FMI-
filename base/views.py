@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ProfileUpdateForm
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
-from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.contrib.auth.models import User
+from .forms import ProfileUpdateForm
 from .models import Profile
-from notifications.signals import notify
-from notifications.models import Notification
+
 
 def home(request):
     if request.user.is_authenticated:
@@ -15,6 +14,7 @@ def home(request):
         return render(request, "home_logged_in.html", {"notifications_list": notifications_list})
     else:
         return render(request, "home_guest.html")
+
 
 def sign_up(request):
     if request.method == "POST":
@@ -28,31 +28,31 @@ def sign_up(request):
 
     return render(request, "registration/signup.html", {"form": form})
 
+
 @login_required
 def profile_view(request, username):
-    user_obj = get_object_or_404(User, username=username)
-    profile = user_obj.profile
-    is_owner = (request.user == user_obj)
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+    is_owner = (request.user == user)
     context = {
         'profile': profile,
         'is_owner': is_owner,
     }
     return render(request, 'profile.html', context)
 
+
 @login_required
 def update_profile(request):
-    profile = request.user.profile
-    username = request.user.username
     if request.method == 'POST':
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         if profile_form.is_valid():
             profile_form.save()
-            return redirect('base:profile', username=username)
+            return redirect('base:profile', username=request.user.username)
     else:
-        profile_form = ProfileUpdateForm(instance=profile)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
     
-    context = {'profile_form': profile_form}
-    return render(request, 'update_profile.html', context)
+    return render(request, 'update_profile.html', {'profile_form': profile_form})
+
 
 @login_required
 def change_password(request):
@@ -64,4 +64,5 @@ def change_password(request):
             return redirect('change_password')
     else:
         form = PasswordChangeForm(request.user)
+
     return render(request, 'change_password.html', {'form': form})

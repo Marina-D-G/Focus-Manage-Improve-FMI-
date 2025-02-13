@@ -1,5 +1,15 @@
 {% extends "header.html" %}
+{% block title %}Бележки - FMI{% endblock %}
 {% block content %}
+{% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+{% endif %}
 <div class="container mt-4">
     <h2 class="mb-4">Моите бележки</h2>
     <form method="GET" action="{% url 'notes:notes_dashboard' %}" class="mb-4">
