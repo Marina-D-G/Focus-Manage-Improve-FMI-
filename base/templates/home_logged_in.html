@@ -1,30 +1,21 @@
 {% extends "header.html" %}
-{% block extra_styles %}
-<style>
-  /* Ако header.html поддържа блок за допълнителни стилове */
-  body {
-    background: linear-gradient(135deg, #74ABE2, #5563DE);
-    min-height: 100vh;
-    margin: 0;
-  }
-  .card {
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-  }
-</style>
-{% endblock %}
-
 {% block content %}
+{% load static %}
 <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-  <div class="card shadow-lg">
+  <div class="card custom-card shadow-lg">
     <div class="card-body text-center p-5">
-      <h3 class="card-title mb-4">Добре дошли!</h3>
-      <p class="mb-4">Здравей, {{ user.username }}!</p>
-      <form method="POST" action="{% url 'base:logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-outline-dark">Изход</button>
-      </form>
+      <h1 class="card-title mb-4">Добре дошли, {{ user.profile.display_name }}!</h1>
+      <img src="{% static 'fmi_icon.png' %}" alt="Logo" class="rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+      <blockquote class="blockquote text-center">
+        <p class="mb-4 fw-bold">{{quote}}</p>
+        <footer class="blockquote-footer"><cite title="Source Title">{{author}}</cite></footer>
+      </blockquote>
+      <div class="alert alert-info" role="alert">
+        <strong>Задачи с краен срок днес:</strong> {{ unfinished_tasks_count }}
+      </div>
+      <div class="alert alert-warning" role="alert">
+        <strong>Събития за днес:</strong> {{ today_events_count }}
+      </div>
     </div>
   </div>
 </div>

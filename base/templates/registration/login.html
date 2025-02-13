@@ -1,16 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow p-4" style="width: 350px;">
-        <h3 class="text-center mb-3">Вход в FMI</h3>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary w-100">Вход</button>
-        </form>
-        <div class="text-center mt-3">
-            <a class="text-decoration-none" href="{% url 'base:sign_up' %}">Регистрация</a>
-        </div>
-    </div>
+<h3 class="text-center mb-3">Вход във FMI</h3>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary w-100">Вход</button>
+</form>
+<div class="text-center mt-3">
+    <a class="text-decoration-none" href="{% url 'base:sign_up' %}">Регистрация</a>
 </div>
-{% endblock content %}
+{% endblock %}

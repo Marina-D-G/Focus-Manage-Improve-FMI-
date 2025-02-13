@@ -89,7 +89,7 @@
                           {% for event in day.events %}
                             <div class="badge bg-warning text-dark d-block mt-1" 
                                  style="cursor: pointer;" 
-                                 onclick="window.location.href='{% url 'calendars:event_detail' event.id %}'" 
+                                 onclick="window.location.href='{% url 'calendars:event_detail' event.id %}'"
                                  title="{{ event.name }} - {{ event.time|time:'H:i' }}{% if event.description %}\n{{ event.description }}{% endif %}">
                               {{ event.name }}
                             </div>

@@ -13,12 +13,40 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" type="image/png" href="{% static 'fmi_icon.png' %}" sizes="32x32">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Mulish', sans-serif;
+        }
+        .custom-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            max-width: 500px;
+            background-color: white;
+            text-align: center;
+            padding: 30px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            min-width: 120px;
+        }
+        .helptext {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-4">
-        {% block content %}{% endblock content %}
+    <div class="container d-flex align-items-center justify-content-center vh-100">
+        <div class="card custom-card shadow-lg text-center">
+            {% block content %}{% endblock content %}
+        </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
