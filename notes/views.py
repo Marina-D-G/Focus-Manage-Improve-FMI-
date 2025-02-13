@@ -1,9 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Note, NoteImage
-from .forms import NoteForm, NoteImageForm, NoteEditForm, CodeForm
 from django.contrib import messages
 from notifications.signals import notify
+from .models import Note, NoteImage
+from .forms import NoteForm, NoteImageForm, NoteEditForm, CodeForm
+
+
+def create_note_image(note, image):
+    if image:
+        NoteImage.objects.create(note=note, image=image)
+
 
 @login_required
 def notes_dashboard(request):
@@ -13,25 +19,30 @@ def notes_dashboard(request):
         notes = notes.filter(category=category)
     return render(request, 'notes_dashboard.html', {'notes': notes})
 
+
 @login_required
 def add_note(request):
     if request.method == "POST":
         form = NoteForm(request.POST)
         image_form = NoteImageForm(request.POST, request.FILES)
-
         if form.is_valid() and image_form.is_valid():
             note = form.save(commit=False)
             note.user = request.user
             note.save()
             image = image_form.cleaned_data.get('image')
-            if image:
-                NoteImage.objects.create(note=note, image=image)
+            create_note_image(note, image)
+            messages.success(request, "Бележката е добавена успешно!")
             return redirect('notes:notes_dashboard')
     else:
         form = NoteForm()
         image_form = NoteImageForm()
 
-    return render(request, 'add_note.html', {'form': form, 'image_form': image_form})
+    context = {
+        'form': form,
+        'image_form': image_form,
+    }
+    return render(request, 'add_note.html', context)
+
 
 @login_required
 def delete_note(request, note_id):
@@ -39,26 +50,32 @@ def delete_note(request, note_id):
     note.delete()
     return redirect('notes:notes_dashboard')
 
+
 @login_required
 def edit_note(request, note_id):
     note = get_object_or_404(Note, id=note_id, user=request.user)
-
     if request.method == 'POST':
         form = NoteEditForm(request.POST, request.FILES, instance=note)
         if form.is_valid():
             note = form.save()
             image = form.cleaned_data.get('image')
-            if image:
-                NoteImage.objects.create(note=note, image=image)
+            create_note_image(note, image)
             return redirect('notes:notes_dashboard')
     else:
         form = NoteEditForm(instance=note)
-    return render(request, 'edit_note.html', {'form': form, 'note': note})
+
+    context = {
+        'form': form,
+        'note': note,
+    }
+    return render(request, 'edit_note.html', context)
+
 
 @login_required
 def note_detail(request, note_id):
     note = get_object_or_404(Note, id=note_id)
     return render(request, 'note_detail.html', {'note': note})
+
 
 @login_required
 def view_note(request):
@@ -81,6 +98,7 @@ def view_note(request):
 
     return render(request, "view_note_through_code.html", {"form": form})
 
+
 @login_required
 def delete_image(request, image_id):
     if request.method == 'POST':
@@ -88,7 +106,6 @@ def delete_image(request, image_id):
         if image_obj.image:
             image_obj.image.delete()
         image_obj.delete()
-        next_url = request.META.get('HTTP_REFERER')
-        if next_url:
-            return redirect(next_url)
+        next_url = request.META.get('HTTP_REFERER', 'notes:notes_dashboard')
+        return redirect(next_url)
     return redirect('notes:notes_dashboard')

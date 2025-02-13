@@ -4,22 +4,24 @@
     <h2 class="mb-4">Редактиране на бележка</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="card p-3 mb-3">
+        <div class="card p-4 mb-3">
             {{ form.as_p }}
         </div>
-        <button type="submit" class="btn btn-primary">Запази промените</button>
-        <a href="{% url 'notes:notes_dashboard' %}" class="btn btn-secondary">Отказ</a>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Запази промените</button>
+            <a href="{% url 'notes:notes_dashboard' %}" class="btn btn-secondary">Отказ</a>
+        </div>
     </form>
     {% if note.images.all %}
-    <div class="card p-3 mb-3 mt-3">
+    <div class="card p-4 mb-3 mt-4">
         <h5>Снимки</h5>
-        <div class="mt-2">
+        <div class="mt-3">
             {% for image in note.images.all %}
-            <div class="mb-2">
-                <img src="{{ image.image.url }}" class="img-fluid rounded mb-2" alt="Снимка">
+            <div class="mb-3 d-flex align-items-center">
+                <img src="{{ image.image.url }}" class="img-fluid rounded me-2" alt="Снимка" style="max-width: 150px;">
                 <form method="post" action="{% url 'notes:delete_image' image.id %}" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm btn-icon">🗑️</button>
+                    <button type="submit" class="btn btn-danger btn-sm">🗑️</button>
                 </form>
             </div>
             {% endfor %}
@@ -28,4 +30,3 @@
     {% endif %}
 </div>
 {% endblock %}
-
