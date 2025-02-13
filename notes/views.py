@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Note, NoteImage
 from .forms import NoteForm, NoteImageForm, NoteEditForm, CodeForm
 from django.contrib import messages
 from notifications.signals import notify
 
+@login_required
 def notes_dashboard(request):
     notes = Note.objects.filter(user=request.user).order_by('-created_at')
     category = request.GET.get('category')
@@ -11,6 +13,7 @@ def notes_dashboard(request):
         notes = notes.filter(category=category)
     return render(request, 'notes_dashboard.html', {'notes': notes})
 
+@login_required
 def add_note(request):
     if request.method == "POST":
         form = NoteForm(request.POST)
@@ -30,11 +33,13 @@ def add_note(request):
 
     return render(request, 'add_note.html', {'form': form, 'image_form': image_form})
 
+@login_required
 def delete_note(request, note_id):
     note = get_object_or_404(Note, id=note_id, user=request.user)
     note.delete()
     return redirect('notes:notes_dashboard')
 
+@login_required
 def edit_note(request, note_id):
     note = get_object_or_404(Note, id=note_id, user=request.user)
 
@@ -50,10 +55,12 @@ def edit_note(request, note_id):
         form = NoteEditForm(instance=note)
     return render(request, 'edit_note.html', {'form': form, 'note': note})
 
+@login_required
 def note_detail(request, note_id):
     note = get_object_or_404(Note, id=note_id)
     return render(request, 'note_detail.html', {'note': note})
 
+@login_required
 def view_note(request):
     if request.method == "POST":
         form = CodeForm(request.POST)
@@ -74,6 +81,7 @@ def view_note(request):
 
     return render(request, "view_note_through_code.html", {"form": form})
 
+@login_required
 def delete_image(request, image_id):
     if request.method == 'POST':
         image_obj = get_object_or_404(NoteImage, id=image_id)

@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import TodoItem, TodoList
 from .forms import TaskForm, TodoListForm, JoinListForm
 from notifications.signals import notify
 
-def home(request):
-    return render(request, 'hello.html')
-
+@login_required
 def tasks(request):
     sort_by = request.GET.get('sort_by')
     order = request.GET.get('order')
@@ -44,6 +42,7 @@ def tasks(request):
     
     return render(request, 'tasks.html', context)
 
+@login_required
 def add_task(request, list_id):
     todo_list = get_object_or_404(TodoList, id=list_id, users=request.user)
     
@@ -71,6 +70,7 @@ def add_task(request, list_id):
     }
     return render(request, 'add.html', context)
 
+@login_required
 def delete_list(request, list_id):
     todo_list = get_object_or_404(TodoList, id=list_id, users=request.user)
     
@@ -81,12 +81,14 @@ def delete_list(request, list_id):
     
     return redirect('tasks:tasks')
 
+@login_required
 def mark_done(request, task_id):
     task = get_object_or_404(TodoItem, id=task_id)
     task.phase = "done"
     task.save()
     return redirect(request.META.get('HTTP_REFERER', 'tasks:tasks'))
 
+@login_required
 def edit_task(request, task_id):
     task = get_object_or_404(TodoItem, id=task_id)
 
@@ -100,6 +102,7 @@ def edit_task(request, task_id):
 
     return render(request, "edit.html", {"form": form, "task": task})
 
+@login_required
 def delete_task(request, task_id):
     task = get_object_or_404(TodoItem, id=task_id)
     
@@ -109,6 +112,7 @@ def delete_task(request, task_id):
 
     return redirect("tasks:tasks") #with get
 
+@login_required
 def add_list(request):
     if request.method == "POST":
         form = TodoListForm(request.POST)
@@ -122,7 +126,7 @@ def add_list(request):
    
     return render(request, "add_list.html", {"form": form})
 
-
+@login_required
 def join_list(request):
     if request.method == "POST":
         form = JoinListForm(request.POST)

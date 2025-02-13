@@ -9,12 +9,11 @@
         <h3>Профилни данни</h3>
         {{ profile_form.as_p }}
         
-        <h3>Смяна на парола</h3>
-        {{ password_form.as_p }}
-        
         <button type="submit" class="btn btn-primary">Запази промените</button>
         <a href="{% url 'base:profile' request.user.username %}" class="btn btn-secondary">Отказ</a>
     </form>
+    <div class="mt-3">
+        <a href="{% url 'base:password_change' %}" class="btn btn-warning">Смени парола</a>
+    </div>
 </div>
 {% endblock %}
-

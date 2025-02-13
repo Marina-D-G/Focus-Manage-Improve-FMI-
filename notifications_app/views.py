@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from .forms import ReminderForm
 from notifications.models import Notification
 from notifications.signals import notify
 
+@login_required
 def latest_notifications(request):
     latest_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:20]
     return render(request, 'latest_notifications.html', {'latest_notifications': latest_notifications})
 
+@login_required
 def add_reminder(request):
     if request.method == "POST":
         form = ReminderForm(request.POST)

@@ -27,6 +27,7 @@ CATEGORY_BUDGET_PERCENTAGES = {
     'other': 5,
 }
 
+@login_required
 def add_income(request):
     if request.method == "POST":
         form = TransactionForm(request.POST)
@@ -40,6 +41,7 @@ def add_income(request):
         form = TransactionForm()
     return render(request, 'add_transaction.html', {'form': form})
 
+@login_required
 def add_expense(request):
     if request.method == "POST":
         form = TransactionForm(request.POST)
@@ -88,12 +90,13 @@ def add_expense(request):
         form = TransactionForm()
     return render(request, 'add_transaction.html', {'form': form})
 
-
+@login_required
 def remove_transaction(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
     transaction.delete()
     return redirect("budget:dashboard")
 
+@login_required
 def dashboard(request):
     today = datetime.date.today()
     months = []
@@ -136,6 +139,7 @@ def dashboard(request):
 
     return render(request, "dashboard.html", context)
 
+@login_required
 def set_category_limit(request):
     if request.method == 'POST':
         form = CategoryLimitForm(request.POST)
@@ -166,7 +170,7 @@ def generate_pie_chart(labels, values, title):
     buffer.seek(0)
     return buffer
 
-
+@login_required
 def expense_chart(request):
     selected_month = request.GET.get("month", datetime.date.today().strftime("%Y-%m"))
     selected_year, selected_month_num = map(int, selected_month.split("-"))
@@ -181,7 +185,7 @@ def expense_chart(request):
     buffer = generate_pie_chart(categories, amounts, f"Разходи за {selected_month}")
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
-
+@login_required
 def income_chart(request):
     selected_month = request.GET.get("month", datetime.date.today().strftime("%Y-%m"))
     selected_year, selected_month_num = map(int, selected_month.split("-"))
