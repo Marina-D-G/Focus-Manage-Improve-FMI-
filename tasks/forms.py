@@ -5,6 +5,13 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = TodoItem
         fields = ["title", "description", "priority", "phase", "deadline"]
+        labels = {
+            'title': 'Заглавие',
+            'description': 'Описание',
+            'priority': 'Приоритет',
+            'phase': 'Етап',
+            'deadline': 'Краен срок',
+        }
 
 class TodoListForm(forms.ModelForm):
     class Meta:

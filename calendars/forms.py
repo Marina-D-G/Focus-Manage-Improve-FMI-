@@ -6,6 +6,12 @@ class EventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ['name', 'date', 'time', 'description']
+        labels = {
+            'name': 'Име',
+            'date': 'Дата',
+            'time': 'Час',
+            'description': 'Описание'
+        }
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'time': forms.TimeInput(attrs={'type': 'time'}),
@@ -17,6 +23,7 @@ class CalendarForm(forms.ModelForm):
     class Meta:
         model = Calendar
         fields = ['name']
+        labels = {'name': 'Категория'}
     
 
 class JoinCalendarForm(forms.Form):

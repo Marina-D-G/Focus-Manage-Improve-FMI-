@@ -5,6 +5,11 @@ class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
         fields = ['title', 'content', 'category']
+        labels = {
+            'title': 'Заглавие',
+            'content': 'Съдържание',
+            'category': 'Категория',
+        }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
@@ -12,7 +17,7 @@ class NoteForm(forms.ModelForm):
         }
 
 class NoteImageForm(forms.Form):
-    image = forms.ImageField(required=False)
+    image = forms.ImageField(required=False, label='Снимка')
 
 class NoteEditForm(forms.ModelForm):
     image = forms.ImageField(
@@ -23,6 +28,11 @@ class NoteEditForm(forms.ModelForm):
     class Meta:
         model = Note
         fields = ['title', 'content', 'category']
+        labels = {
+            'title': 'Заглавие',
+            'content': 'Съдържание',
+            'category': 'Категория',
+        }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control'}),

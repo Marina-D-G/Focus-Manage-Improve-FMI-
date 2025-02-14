@@ -6,6 +6,12 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = ['category', 'amount', 'date', 'description']
+        labels = {
+            'category': 'Категория',
+            'amount': 'Сума',
+            'date': 'Дата',
+            'description': 'Описание'
+        }
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
@@ -21,15 +27,16 @@ class CategoryLimitForm(forms.Form):
         ('dept', 'Заем'),
         ('other', 'Други'),
     ]
-    
+    labels = {
+            'category': 'Категория',
+            'percentage': 'Процент(%)',
+    }
     category = forms.ChoiceField(
         choices=CATEGORY_CHOICES, 
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Категория"
     )
     percentage = forms.IntegerField(
         min_value=0, 
         max_value=100, 
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        label="Процент (%)"
     )

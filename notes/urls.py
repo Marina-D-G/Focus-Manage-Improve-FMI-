@@ -10,5 +10,5 @@ urlpatterns = [
     path('edit/<int:note_id>/', views.edit_note, name='edit_note'),
     path('delete_image/<int:image_id>/', views.delete_image, name='delete_image'),
     path('note_detail/<int:note_id>/', views.note_detail, name='note_detail'),
-    path('view/', views.view_note, name='view_note') #through code
+    path('view/', views.view_note, name='view_note'), #through code
 ]
