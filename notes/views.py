@@ -10,7 +10,6 @@ def create_note_image(note, image):
     if image:
         NoteImage.objects.create(note=note, image=image)
 
-
 @login_required
 def notes_dashboard(request):
     notes = Note.objects.filter(user=request.user).order_by('-created_at')
@@ -18,7 +17,6 @@ def notes_dashboard(request):
     if category:
         notes = notes.filter(category=category)
     return render(request, 'notes_dashboard.html', {'notes': notes})
-
 
 @login_required
 def add_note(request):

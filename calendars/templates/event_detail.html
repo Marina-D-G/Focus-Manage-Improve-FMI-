@@ -27,9 +27,7 @@
       {% else %}
         <p class="mt-2">
           <strong>Вие нямате права над това събитие. Негов създател е:</strong>
-          <a href="/profile/{{ event.owner.username }}/" class="btn btn-link">
-            {{ event.owner.profile.display_name }}
-          </a>
+          <a href="/profile/{{ event.owner.username }}/" class="btn btn-link">@{{ event.owner.username }}</a>
         </p>
       {% endif %}
     </div>
