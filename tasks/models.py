@@ -14,19 +14,18 @@ class TodoList(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def generate_code(self):
         while True:
-            code = str(random.randint(100000, 999999)) 
+            code = str(random.randint(100000, 999999))
             if not TodoList.objects.filter(join_code=code).exists():
-                self.join_code = code
-                self.save()
-                break
+                return code
 
     def save(self, *args, **kwargs):
         if not self.join_code:
-            self.generate_code()
+            self.join_code = self.generate_code()
         super().save(*args, **kwargs)
+
 
 class TodoItem(models.Model):
     PRIORITY_CHOICES = [
