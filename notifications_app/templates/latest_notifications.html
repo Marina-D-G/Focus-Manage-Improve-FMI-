@@ -19,7 +19,8 @@
               {% if notification.target %}
                 за <strong>{{ notification.target }}</strong>
               {% endif %}
-            {% else %}
+            {% endif %}
+            {% if notification.description %}
               {{ notification.description }}
             {% endif %}
             <br>
