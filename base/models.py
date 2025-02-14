@@ -6,5 +6,10 @@ class Profile(models.Model):
     display_name = models.CharField(max_length=150, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        if not self.display_name:
+            self.display_name = self.user.username
+        super().save(*args, **kwargs)
+    
     def __str__(self):
-        return self.display_name or self.user.username
+        return self.display_name

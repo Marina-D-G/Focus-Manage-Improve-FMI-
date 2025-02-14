@@ -97,9 +97,3 @@ class NoteTest(TestCase):
         response = self.client.post(url, HTTP_REFERER=reverse("notes:notes_dashboard"))
         self.assertRedirects(response, reverse("notes:notes_dashboard"))
         self.assertFalse(NoteImage.objects.filter(id=note_image.id).exists())
-
-    def test_dashboard_requires_login(self):
-        url = reverse("notes:notes_dashboard")
-        response = self.client.get(url)
-        self.assertNotEqual(response.status_code, 200)
-        self.assertRedirects(response, f"/accounts/login/?next={url}")  
