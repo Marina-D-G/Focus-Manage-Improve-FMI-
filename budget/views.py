@@ -199,6 +199,7 @@ def dashboard(request):
         "budget_left": budget_left,
         "months": months,
         "selected_month": selected_month,
+        "selected_year": selected_year,
         "selected_month_label": selected_month_label
     }
     return render(request, "dashboard.html", context)
@@ -222,7 +223,7 @@ def set_category_limit(request):
 @login_required
 def expense_chart(request):
     selected_month = request.GET.get("month", datetime.date.today().strftime("%m-%Y"))
-    selected_year, selected_month_num = map(int, selected_month.split("-"))
+    selected_month_num, selected_year = map(int, selected_month.split("-"))
     transactions = Transaction.objects.filter(
         user=request.user,
         type="expense",
@@ -237,7 +238,7 @@ def expense_chart(request):
 @login_required
 def income_chart(request):
     selected_month = request.GET.get("month", datetime.date.today().strftime("%m-%Y"))
-    selected_year, selected_month_num = map(int, selected_month.split("-"))
+    selected_month_num, selected_year = map(int, selected_month.split("-"))
     transactions = Transaction.objects.filter(
         user=request.user,
         type="income",

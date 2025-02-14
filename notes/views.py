@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponse
 from notifications.signals import notify
 from .models import Note, NoteImage
 from .forms import NoteForm, NoteImageForm, NoteEditForm, CodeForm
@@ -10,6 +11,7 @@ def create_note_image(note, image):
     if image:
         NoteImage.objects.create(note=note, image=image)
 
+
 @login_required
 def notes_dashboard(request):
     notes = Note.objects.filter(user=request.user).order_by('-created_at')
@@ -17,6 +19,7 @@ def notes_dashboard(request):
     if category:
         notes = notes.filter(category=category)
     return render(request, 'notes_dashboard.html', {'notes': notes})
+
 
 @login_required
 def add_note(request):
@@ -107,3 +110,21 @@ def delete_image(request, image_id):
         next_url = request.META.get('HTTP_REFERER', 'notes:notes_dashboard')
         return redirect(next_url)
     return redirect('notes:notes_dashboard')
+
+
+@login_required
+def download_note(request, note_id):
+    note = get_object_or_404(Note, id=note_id, user=request.user)
+    content = f"Заглавие: {note.title}\n"
+    content += f"Дата: {note.created_at.strftime('%d %B %Y %H:%M')}\n"
+    if note.category:
+        content += f"Категория: {note.get_category_display()}\n\n"
+    else:
+        content += "Категория: Няма избрана категория\n\n"
+    content += f"{note.content}\n"
+    
+    title = note.title
+    response = HttpResponse(content, content_type='text/plain; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename*="{title}.txt"'
+    
+    return response

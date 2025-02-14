@@ -2,16 +2,16 @@
 {% block title %}Бюджет - FMI{% endblock %}
 {% block content %}
 {% if messages %}
-        <div>
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
+    <div>
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
 {% endif %}
 <div class="container mt-4">
-    <h2 class="mb-4">Бюджет за {{selected_month}}</h2>
+    <h2 class="mb-4">Бюджет за {{ selected_month }}</h2>
     <div class="row">
         <div class="col-md-4">
             <div class="card p-3 mb-3 text-center">

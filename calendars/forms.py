@@ -23,7 +23,7 @@ class CalendarForm(forms.ModelForm):
     class Meta:
         model = Calendar
         fields = ['name']
-        labels = {'name': 'Категория'}
+        labels = {'name': 'Име'}
     
 
 class JoinCalendarForm(forms.Form):

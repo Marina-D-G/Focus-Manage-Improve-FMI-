@@ -11,4 +11,5 @@ urlpatterns = [
     path('delete_image/<int:image_id>/', views.delete_image, name='delete_image'),
     path('note_detail/<int:note_id>/', views.note_detail, name='note_detail'),
     path('view/', views.view_note, name='view_note'), #through code
+    path('download/<int:note_id>/', views.download_note, name='download_note')
 ]
