@@ -43,7 +43,7 @@
           {% if current_list %}
           <div class="d-flex flex-wrap align-items-center">
             <a href="{% url 'tasks:add_task' current_list.id %}" class="btn btn-success btn-sm me-2">+ Добави задача</a>
-            <button class="btn btn-info btn-sm me-2" onclick="alert('Код за присъединяване: {{ current_list.join_code }}')">🔑 Присъедини потребител</button>
+            <button class="btn btn-info btn-sm me-2" onclick="alert('Код за присъединяване: {{ current_list.join_code }}')"><i class="bi bi-person-fill-add"></i> Присъедини потребител</button>
             <form method="POST" action="{% url 'tasks:delete_list' current_list.id %}" class="d-inline me-2" onsubmit="return confirm('Сигурни ли сте, че искате да изтриете този списък?');">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger btn-sm">✖ Изтрий списък</button>
@@ -86,16 +86,16 @@
                   <div class="d-flex flex-wrap gap-2 mt-8 justify-content-end">
                     <form method="POST" action="{% url 'tasks:mark_done' todo.id %}">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-success btn-sm">✔</button>
+                      <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check2"></i></button>
                     </form>
-                    <a href="{% url 'tasks:edit_task' todo.id %}" class="btn btn-primary btn-sm">✎</a>
+                    <a href="{% url 'tasks:edit_task' todo.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i></a>
                     <form method="POST" action="{% url 'tasks:delete_task' todo.id %}" onsubmit="return confirm('Сигурни ли сте?');" class="d-inline">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-danger btn-sm">✖</button>
+                      <button type="submit" class="btn btn-danger btn-sm" title="Изтрий"><i class="bi bi-trash3"></i></button>
                     </form>
                     <form method="POST" action="{% url 'calendars:add_from_task' todo.id %}" class="d-inline">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-warning btn-sm" title="Добави към календар">📅</button>
+                      <button type="submit" class="btn btn-warning btn-sm" title="Добави към календар"><i class="bi bi-calendar-check"></i></button>
                     </form>
                   </div>                  
                   <!-- Описание (ако има) -->

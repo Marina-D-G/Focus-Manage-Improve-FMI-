@@ -38,15 +38,19 @@
             {% endfor %}
             {% if selected_calendar %}
             <div class="mt-2 text-center">
-              <div class="btn-group btn-group-sm" role="group" aria-label="Calendar actions">
-                <form method="POST" action="{% url 'calendars:remove_calendar' selected_calendar.id %}" style="display:inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-danger" title="Изтрий календар">❌</button>
-                </form>
-                <button type="button" class="btn btn-primary" onclick="alert('Код за присъединяване: {{ selected_calendar.join_code }}');">👥</button>
-                <a href="{% url 'calendars:export_calendar' selected_calendar.id %}" class="btn btn-primary">📥</a>
+              <div class="btn-group gap-2" role="group" aria-label="Calendar actions">
+                  <form method="POST" action="{% url 'calendars:remove_calendar' selected_calendar.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger" title="Изтрий календар"><i class="bi bi-trash3"></i></button>
+                  </form>
+                  <button type="button" class="btn btn-warning" onclick="alert('Код за присъединяване: {{ selected_calendar.join_code }}');">
+                      <i class="bi bi-person-fill-add"></i>
+                  </button>
+                  <a href="{% url 'calendars:export_calendar' selected_calendar.id %}" class="btn btn-success">
+                      <i class="bi bi-download"></i>
+                  </a>
               </div>
-            </div>
+          </div>          
           {% endif %}
         </div>
       </div>

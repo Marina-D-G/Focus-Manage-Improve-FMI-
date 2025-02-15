@@ -57,13 +57,13 @@
                         {{ note.created_at|date:"d M Y H:i" }}
                     </small>
                     <div>
-                        <a href="{% url 'notes:note_detail' note.id %}" class="btn btn-info btn-sm btn-icon">🔍</a>
-                        <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-primary btn-sm btn-icon">✏️</a>
+                        <a href="{% url 'notes:note_detail' note.id %}" class="btn btn-info btn-sm"><i class="bi bi-search"></i></a>
+                        <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i></a>
                         <form method="post" action="{% url 'notes:delete_note' note.id %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm btn-icon">🗑️</button>
+                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button>
                         </form>
-                        <button type="button" class="btn btn-primary btn-sm btn-icon" onclick="alert('Код за споделяне на бележка: {{ note.join_code }}');">👥</button>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="alert('Код за споделяне на бележка: {{ note.join_code }}');"><i class="bi bi-person-fill-add"></i></button>
                     </div>                                        
                 </div>
             </div>
